@@ -4,6 +4,7 @@ device_t NodeDevice;
 
 void setup()
 {
+	EEPROM.begin(255);
 	Serial.begin(115200);
 	u8g2.begin();
 	ESP32BT.begin("NodeTUPR");
@@ -20,6 +21,7 @@ void setup()
 
 	while (NodeDevice.wifi == 0)
 	{
+		NodeDevice.count = 0;
 		u8g2.drawStr(0, 60, "Wifi");
 		if (ESP32BT.hasClient())
 		{
@@ -29,21 +31,22 @@ void setup()
 			}
 		}
 		else
+		{
 			digitalWrite(LED_BUILTIN, LOW);
+		}
 		u8g2.sendBuffer();
 	}
+	EEPROM.end();
 }
 
 void loop()
 {
-	Serial.println("Loop");
-	delay(1000);
-	// u8g2.firstPage();
-	// do
-	// {
-	// 	// u8g2.clearDisplay();
-	// 	// u8g2.setFont(u8g2_font_ncenB08_tr);
-	// 	// u8g2.drawStr(0, 10, "Wifi:");
-	// 	// u8g2.sendBuffer();
-	// } while(u8g2.nextPage());
+	u8g2.firstPage();
+	do
+	{
+		u8g2.clearDisplay();
+		u8g2.setFont(u8g2_font_ncenB08_tr);
+		u8g2.drawStr(0, 10, "RUNNING...");
+		u8g2.sendBuffer();
+	} while(u8g2.nextPage());
 }
