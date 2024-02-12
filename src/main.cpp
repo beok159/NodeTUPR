@@ -9,48 +9,60 @@ device_t NodeDevice;
 
 void setup()
 {
-	EEPROM.begin(255);
-	Serial.begin(115200);
-	u8g2.begin();
-	ESP32BT.begin("NodeTUPR");
+	time_d		OutLoop;
+	uint8_t		loop;
 
+	OutLoop.last_time = 0;
+	OutLoop.timedelay = DELAY_TIMEOUT;
 	NodeDevice.bluetooth = 0;
 	NodeDevice.wifi = 0;
+	loop = 1;
+
+	u8g2.begin();
+	Serial.begin(SERIAL_BEGIN);
+	ESP32BT.begin(NAME_BT_DEIVICE);
+	EEPROM.begin(EEPROM_SIZE);
 
 	pinMode(LED_BUILTIN, OUTPUT);
 
-
-	Serial.println("Bluetooth device is ready to pair");
 	u8g2.setFont(u8g2_font_ncenB08_tr);
 	u8g2.drawStr(0, 10, "Menu C/R And Y/n");
 	u8g2.sendBuffer();
 
-	while (NodeDevice.wifi == 0)
+	while (loop == 1)
 	{
-		NodeDevice.count = 0;
-		u8g2.drawStr(0, 60, "Wifi");
-		if (ESP32BT.hasClient())
+		if (millis() - OutLoop.last_time > OutLoop.timedelay && NodeDevice.datasave == 1)
 		{
-			ft_putstr_BT("menu: setup-esp32s (TUPR-NODE)\n1:\n2:\n3:", ESP32BT);
-			digitalWrite(LED_BUILTIN, HIGH);
-			while (1)
-			{
-				if (ESP32BT.available())
-				{
-				}
-			}
+			OutLoop.last_time = millis();
+			loop = 0;
 		}
-		else
-		{
-			digitalWrite(LED_BUILTIN, LOW);
-		}
-		u8g2.sendBuffer();
+		
+		digitalWrite(LED_BUILTIN, HIGH);
 	}
+
+	// while (NodeDevice.wifi == 0)
+	// {
+	// 	u8g2.drawStr(0, 60, "Wifi");
+	// 	if (ESP32BT.hasClient())
+	// 	{
+	// 		ft_putstr_BT("menu: setup-esp32s (TUPR-NODE)\n1:\n2:\n3:", ESP32BT);
+	// 		digitalWrite(LED_BUILTIN, HIGH);
+	// 		if (ESP32BT.available())
+	// 		{
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		digitalWrite(LED_BUILTIN, LOW);
+	// 	}
+	// 	u8g2.sendBuffer();
+	// }
 	EEPROM.end();
 }
 
 void loop()
 {
+	digitalWrite(LED_BUILTIN, LOW);
 	u8g2.firstPage();
 	do
 	{
