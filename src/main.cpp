@@ -9,13 +9,14 @@ device_t NodeDevice;
 
 void setup()
 {
-	time_d		OutLoop;
+	time_d		TimeOut;
 	uint8_t		loop;
 
-	OutLoop.last_time = 0;
-	OutLoop.timedelay = DELAY_TIMEOUT;
+	TimeOut.last_time = 0;
+	TimeOut.timedelay = TIMEOUT;
 	NodeDevice.bluetooth = 0;
 	NodeDevice.wifi = 0;
+	NodeDevice.datasave = 0;
 	loop = 1;
 
 	u8g2.begin();
@@ -26,18 +27,28 @@ void setup()
 	pinMode(LED_BUILTIN, OUTPUT);
 
 	u8g2.setFont(u8g2_font_ncenB08_tr);
-	u8g2.drawStr(0, 10, "Menu C/R And Y/n");
+	u8g2.drawStr(0, 10, "Check DATAbase!");
 	u8g2.sendBuffer();
 
 	while (loop == 1)
 	{
-		if (millis() - OutLoop.last_time > OutLoop.timedelay && NodeDevice.datasave == 1)
+		u8g2.clearBuffer();
+		if ((millis() - TimeOut.last_time) > TimeOut.timedelay && !ESP32BT.hasClient())
 		{
-			OutLoop.last_time = millis();
-			loop = 0;
+			TimeOut.last_time = millis();
+			if (NodeDevice.datasave == 0)
+				ESP.restart();
+			else
+				loop = 0;
 		}
-		
-		digitalWrite(LED_BUILTIN, HIGH);
+		while (ESP32BT.hasClient())
+		{
+			digitalWrite(LED_BUILTIN, HIGH);
+			u8g2.drawStr(0, 10, "Used Bluetooth");
+			u8g2.sendBuffer();
+		}
+		digitalWrite(LED_BUILTIN, LOW);
+		continue	;
 	}
 
 	// while (NodeDevice.wifi == 0)
@@ -67,7 +78,7 @@ void loop()
 	do
 	{
 		u8g2.clearDisplay();
-		u8g2.setFont(u8g2_font_ncenB08_tr);
+		// u8g2.setFont(u8g2_font_ncenB08_tr);
 		u8g2.drawStr(0, 10, "RUNNING...");
 		u8g2.sendBuffer();
 	} while(u8g2.nextPage());

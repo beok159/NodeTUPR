@@ -22,6 +22,9 @@
 # ifndef DELAY_TIMEOUT
 # 	define DELAY_TIMEOUT 10000
 # endif
+# ifndef TIMEOUT
+# 	define TIMEOUT 30000
+# endif
 # ifndef SERIAL_BEGIN
 # 	define SERIAL_BEGIN 115200
 # endif
