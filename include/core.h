@@ -9,10 +9,15 @@
 # include <BluetoothSerial.h>
 # include <EEPROM.h>
 
-U8G2_SH1106_128X64_NONAME_F_HW_I2C	u8g2(U8G2_R0);
-BluetoothSerial							ESP32BT;
-WiFiServer									server(80);
-HTTPClient									http;
+// Check if Bluetooth is available
+# if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+  #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+# endif
+
+// Check Serial Port Profile
+# if !defined(CONFIG_BT_SPP_ENABLED)
+  #error Serial Port Profile for Bluetooth is not available or not enabled. It is only available for the ESP32 chip.
+# endif
 
 typedef struct time_d
 {
@@ -31,5 +36,7 @@ typedef struct device_t
 // {
 // 	uint32_t		page_id;
 // }					display_t;
+
+void	ft_putstr_BT(const char *str, BluetoothSerial &BT);
 
 #endif

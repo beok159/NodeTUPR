@@ -1,5 +1,10 @@
 #include "core.h"
 
+U8G2_SH1106_128X64_NONAME_F_HW_I2C	u8g2(U8G2_R0);
+BluetoothSerial							ESP32BT;
+WiFiServer									server(80);
+HTTPClient									http;
+
 device_t NodeDevice;
 
 void setup()
@@ -14,6 +19,7 @@ void setup()
 
 	pinMode(LED_BUILTIN, OUTPUT);
 
+
 	Serial.println("Bluetooth device is ready to pair");
 	u8g2.setFont(u8g2_font_ncenB08_tr);
 	u8g2.drawStr(0, 10, "Menu C/R And Y/n");
@@ -25,9 +31,13 @@ void setup()
 		u8g2.drawStr(0, 60, "Wifi");
 		if (ESP32BT.hasClient())
 		{
+			ft_putstr_BT("menu: setup-esp32s (TUPR-NODE)\n1:\n2:\n3:", ESP32BT);
 			digitalWrite(LED_BUILTIN, HIGH);
-			if (ESP32BT.available())
+			while (1)
 			{
+				if (ESP32BT.available())
+				{
+				}
 			}
 		}
 		else
