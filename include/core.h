@@ -39,7 +39,7 @@
 # 	define DETECT_COUNT 5
 # endif
 # ifndef DETECT_DISTANCE
-# 	define DETECT_DISTANCE 270
+# 	define DETECT_DISTANCE 270 //ระยะการวัด
 # endif
 
 typedef struct time_d
