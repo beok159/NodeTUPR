@@ -6,15 +6,6 @@ HTTPClient http;
 
 device_t NodeDevice;
 
-// Chang Wifi
-// #define SSID "V"
-// #define PASSWORD "12345678"
-// #define TOKEN ""
-
-// #define TRIG_PIN 19
-// #define ECHO_PIN 18
-# define DELAY_SENSOR 3000
-
 void setup()
 {
 	time_d TimeOut;
@@ -64,12 +55,59 @@ void setup()
 
 void loop()
 {
-	time_d Sensor;
-	volatile int sensor_value;
+	static unsigned long lastSensorCheckTime;
+	static unsigned long lastDetectTime;
+	unsigned long currentTime;
+	static int count;
+	int httpResponseCode;
 	long duration;
+	int sensor_value;
+	String postData;
 
-	Sensor.last_time = 0;
-	Sensor.timedelay = DELAY_SENSOR;
+	
+	lastSensorCheckTime = 0;
+	lastDetectTime = 0;
+	currentTime = millis();
+	count = 0;
+	postData = "message=ตรวจพบความผิดปกติของระดับน้ำ\n";
+	if (currentTime - lastSensorCheckTime >= 3000)
+	{
+		lastSensorCheckTime = currentTime;
+
+		digitalWrite(TRIG_PIN, LOW);
+		delayMicroseconds(2);
+		digitalWrite(TRIG_PIN, HIGH);
+		delayMicroseconds(5);
+		digitalWrite(TRIG_PIN, LOW);
+		duration = pulseIn(ECHO_PIN, HIGH);
+		sensor_value = duration / 29 / 2;
+
+		Serial.printf("%d\n", sensor_value);
+		if (sensor_value > DETECT_DISTANCE)
+		{
+			count++;
+			if (count >= DETECT_COUNT && currentTime - lastDetectTime >= DELAY_SENSOR)
+			{
+				postData = "message=ตรวจพบความผิดปกติของระดับน้ำ\n";
+				httpResponseCode = http.POST(postData);
+				// if (httpResponseCode > 0)
+				// {
+				// 	Serial.print("HTTP Response code: ");
+				// 	Serial.println(httpResponseCode);
+				// 	String response = http.getString();
+				// 	Serial.println(response);
+				// }
+				// else
+				// {
+				// 	Serial.print("Error sending request. HTTP Response code: ");
+				// 	Serial.println(httpResponseCode);
+				// }
+				http.end();
+				count = 0;
+				lastDetectTime = currentTime;
+			}
+		}
+	}
 	u8g2.firstPage();
 	do
 	{
@@ -80,23 +118,11 @@ void loop()
 			u8g2.sendBuffer();
 			ESP.restart();
 		}
-		u8g2.drawStr(0, 10, "RUNNIG..");
-		u8g2.drawStr(0, 40, WiFi.localIP().toString().c_str());
-		if ((millis() - Sensor.last_time) > Sensor.timedelay)
+		else
 		{
-			Sensor.last_time = millis();
-			digitalWrite(TRIG_PIN, LOW);
-			delayMicroseconds(2);
-			digitalWrite(TRIG_PIN, HIGH);
-			delayMicroseconds(5);
-			digitalWrite(TRIG_PIN, LOW);
-			duration = pulseIn(ECHO_PIN, HIGH);
-			sensor_value = duration / 29 / 2;
-			Serial.printf("%d\n", sensor_value);
-			digitalWrite(LED_BUILTIN, HIGH);
-			continue	;
+			u8g2.drawStr(0, 10, "RUNNIG..");
+			u8g2.drawStr(0, 40, WiFi.localIP().toString().c_str());
 		}
 		u8g2.sendBuffer();
-		// digitalWrite(LED_BUILTIN, LOW);
 	} while (u8g2.nextPage());
 }

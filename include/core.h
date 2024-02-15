@@ -8,10 +8,10 @@
 # include <HTTPClient.h>
 
 # ifndef DELAY_SENSOR
-# 	define DELAY_SENSOR 30000
+# 	define DELAY_SENSOR 120000
 # endif
 # ifndef TIMEOUT
-# 	define TIMEOUT 30000
+# 	define TIMEOUT 120000
 # endif
 # ifndef SERIAL_BEGIN
 # 	define SERIAL_BEGIN 115200
@@ -19,13 +19,13 @@
 
 // Defual Value Set
 # ifndef SSID
-# 	define SSID "V"
+# 	define SSID ""
 # endif
 # ifndef PASSWORD
-# 	define PASSWORD "12345678"
+# 	define PASSWORD ""
 # endif
 # ifndef TOKEN
-# 	define TOKEN "A"
+# 	define TOKEN ""
 # endif
 
 # ifndef TRIG_PIN
@@ -33,6 +33,13 @@
 # endif
 # ifndef ECHO_PIN
 # 	define ECHO_PIN 18
+# endif
+
+# ifndef DETECT_COUNT
+# 	define DETECT_COUNT 5
+# endif
+# ifndef DETECT_DISTANCE
+# 	define DETECT_DISTANCE 270
 # endif
 
 typedef struct time_d
@@ -45,6 +52,5 @@ typedef struct device_t
 {
 	int	wifi;
 } device_t;
-
 
 #endif
